@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>TensorFlow Lite browser example</title>
+
+    <!-- Load TensorFlow.js from a script tag -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script> -->
+
+    <!-- Import @tensorflow/tfjs-core -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <!-- Adds the CPU backend -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-cpu"></script>
+    <!--
+    Import @tensorflow/tfjs-tflite
+
+    Note that we need to explicitly load dist/tf-tflite.min.js so that it can
+    locate WASM module files from their default location (dist/).
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite/dist/tf-tflite.min.js"></script>
+
+  </head>
+  <body>
+    <h1>TensorFlow Lite example</h1>
+    <div id="result"></div>
+    <script>
+      async function loadModelAndPredict() {
+          // Fetch the JSON data from the server
+          x_new = [];
+          label = "";
+
+          fetch('http://127.0.0.1:5001/get_data?datapoint=512')
+          .then(response => response.json())  // Parse the JSON response
+          .then(data => {
+              // Access the data and update the DOM
+              x_new = data.x_new;
+              label = data.label;
+              // Also log it to the console
+              console.log("x_new:", x_new);
+              console.log("label:", label);
+          })
+          .catch(error => {
+              console.error("Error fetching data:", error);
+          });
+
+          const model = await tflite.loadTFLiteModel('https://bobaebak.github.io/tf_mobile/model_512.tflite');
+          console.log(model)
+          
+          const inputTensor = tf.tensor3d(x_new, [1, 512, 1]);
+          inputTensor.print();
+
+          const output = await model.predict(inputTensor);
+          output.print();
+
+          // const outputTensor = tf.tensor(output);
+
+          // // Step 1: Perform the comparison (greater than 0.5)
+          // const resultTensor = output.greater(0.5);
+          // // Step 2: Convert boolean result to integers (1 for true, 0 for false)
+          // const resultIntTensor = resultTensor.toInt();
+          // // Step 3: Extract the value as a plain JavaScript array and access the first element
+          // const result = resultIntTensor.dataSync()[0];
+          // // Log the result
+          // if (result == 0) {
+          //     predict_label = "linear" 
+          // }
+          // else {
+          //     predict_label = "wave"
+          // }
+          
+          result_message = "Actual: " + label + ", Predict: " + output
+          console.log(result_message); // Should output either 0 or 1 based on the comparison
+
+      }
+        
+      loadModelAndPredict();
+
+    </script>
+
+
+    <!-- <script>
+    // Define a model for linear regression. The script tag makes `tf` available
+    // as a global variable.
+    const model = tf.sequential();
+    model.add(tf.layers.dense({units: 1, inputShape: [1]}));
+
+    model.compile({loss: 'meanSquaredError', optimizer: 'sgd'});
+
+    // Generate some synthetic data for training.
+    const xs = tf.tensor2d([1, 2, 3, 4], [4, 1]);
+    const ys = tf.tensor2d([1, 3, 5, 7], [4, 1]);
+
+    // Train the model using the data.
+    model.fit(xs, ys, {epochs: 10}).then(() => {
+      // Use the model to do inference on a data point the model hasn't seen before:
+      model.predict(tf.tensor2d([5], [1, 1])).print();
+      // Open the browser devtools to see the output
+    });
+    </script> -->
+  </body>
+</html>
