@@ -2,7 +2,7 @@
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
-    <title>TensorFlow.js browser example</title>
+    <title>TensorFlow Lite browser example</title>
 
     <!-- Load TensorFlow.js from a script tag -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script> -->
@@ -21,14 +21,60 @@
 
   </head>
   <body>
-    <h1>TensorFlow.js example</h1>
-    <h2>Open the console to see the results.</h2>
+    <h1>TensorFlow Lite example</h1>
+    <div id="result">
+    </div>
     <script>
-        const tfliteModel = tflite.loadTFLiteModel('https://bobaebak.github.io/tf_mobile/model.tflite');
-        console.log("test")
+      async function loadModelAndPredict() {
+          // Fetch the JSON data from the server
+          x_new = [];
+          label = "";
+
+          fetch('http://127.0.0.1:5001/get_data')
+          .then(response => response.json())  // Parse the JSON response
+          .then(data => {
+              // Access the data and update the DOM
+              x_new = data.x_new;
+              label = data.label;
+              // Also log it to the console
+              console.log("x_new:", x_new);
+              console.log("label:", label);
+          })
+          .catch(error => {
+              console.error("Error fetching data:", error);
+          });
+
+          const model = await tflite.loadTFLiteModel('https://bobaebak.github.io/tf_mobile/model.tflite');
+          console.log(model)
+          
+          const inputTensor = tf.tensor3d(x_new, [1, 256, 1]);
+          inputTensor.print();
+
+          const output = await model.predict(inputTensor);
+          output.print();
+
+          // Step 1: Perform the comparison (greater than 0.5)
+          const resultTensor = output.greater(0.5);
+          // Step 2: Convert boolean result to integers (1 for true, 0 for false)
+          const resultIntTensor = resultTensor.toInt();
+          // Step 3: Extract the value as a plain JavaScript array and access the first element
+          const result = resultIntTensor.dataSync()[0];
+          // Log the result
+          if (result == 0) {
+              predict_label = "linear" 
+          }
+          else {
+              predict_label = "wave"
+          }
+          
+          result_message = "Actual: " + label + ", Predict: " + predict_label
+          console.log(result_message); // Should output either 0 or 1 based on the comparison
+
+      }
+        
+      loadModelAndPredict();
 
     </script>
-
 
 
     <!-- <script>
