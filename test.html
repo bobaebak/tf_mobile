@@ -52,22 +52,8 @@
 
           const output = await model.predict(inputTensor);
           output.print();
-
-          // Step 1: Perform the comparison (greater than 0.5)
-          const resultTensor = output.greater(0.5);
-          // Step 2: Convert boolean result to integers (1 for true, 0 for false)
-          const resultIntTensor = resultTensor.toInt();
-          // Step 3: Extract the value as a plain JavaScript array and access the first element
-          const result = resultIntTensor.dataSync()[0];
-          // Log the result
-          if (result == 0) {
-              predict_label = "linear" 
-          }
-          else {
-              predict_label = "wave"
-          }
           
-          result_message = "Actual: " + label + ", Predict: " + predict_label
+          result_message = "Actual: " + label + ", Predict: " + output
           console.log(result_message); // Should output either 0 or 1 based on the comparison
 
       }
