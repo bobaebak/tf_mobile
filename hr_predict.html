@@ -50,7 +50,7 @@
           });
 
           // predict a value using lite model
-          const model = await tflite.loadTFLiteModel('https://bobaebak.github.io/tf_mobile/hr_predict_model_512.tflite');
+          const model = await tflite.loadTFLiteModel('https://bobaebak.github.io/tf_mobile/models/hr_predict_model_512.tflite');
           console.log(model)
           
           const inputTensor = tf.tensor3d(x_new, [1, duration*fs, 1]);
