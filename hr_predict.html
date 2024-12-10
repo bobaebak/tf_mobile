@@ -23,7 +23,7 @@
   <body>
     <h1>TensorFlow Lite example</h1>
     <h3>Ground Truth: </h1>
-    <div id="true_label"></div>
+    <h5 id="true_label"></h5>
     <h3>Predict: </h1>
     <div id="predict_label"></div>
     <script>
@@ -43,7 +43,7 @@
               // Also log it to the console
               console.log("x_new:", x_new);
               console.log("label:", label);
-              document.getElementId('true_label').innerHTML = label
+              document.getElementById('true_label').innerHTML = label
           })
           .catch(error => {
               console.error("Error fetching data:", error);
@@ -59,7 +59,7 @@
           const output = await model.predict(inputTensor);
           output.print();
 
-          document.getElementId('predict_label').innerHTML = output
+          document.getElementById('predict_label').innerHTML = output
       }
         
       loadModelAndPredict();
